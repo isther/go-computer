@@ -13,7 +13,7 @@ func NewXORGate() *XORGate {
 }
 
 func (xorGate *XORGate) Update(valueA, valueB bool) *XORGate {
-	xorGate.output.Update(!(valueA == valueB))
+	xorGate.output.Update(!(!valueA && !valueB) && !(valueA && valueB))
 	return xorGate
 }
 

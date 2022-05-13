@@ -1,11 +1,13 @@
 package circuit
 
 type Wire struct {
+	name  string
 	value bool
 }
 
-func NewWire(value bool) *Wire {
+func NewWire(name string, value bool) *Wire {
 	return &Wire{
+		name:  name,
 		value: value,
 	}
 }

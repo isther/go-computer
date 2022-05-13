@@ -1,6 +1,6 @@
 package gate
 
-import "github.com/isther/computer/circuit"
+import "github.com/isther/go-computer/circuit"
 
 type ANDGate struct {
 	output circuit.Wire
@@ -8,7 +8,7 @@ type ANDGate struct {
 
 func NewANDGate() *ANDGate {
 	return &ANDGate{
-		output: *circuit.NewWire(false),
+		output: *circuit.NewWire("Z", false),
 	}
 }
 

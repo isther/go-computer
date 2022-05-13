@@ -1,7 +1,7 @@
 package gate
 
 import (
-	"github.com/isther/computer/circuit"
+	"github.com/isther/go-computer/circuit"
 )
 
 type NANDGate struct {
@@ -10,7 +10,7 @@ type NANDGate struct {
 
 func NewNANDGate() *NANDGate {
 	return &NANDGate{
-		output: *circuit.NewWire(false),
+		output: *circuit.NewWire("Z", false),
 	}
 }
 

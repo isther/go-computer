@@ -1,6 +1,6 @@
 package gate
 
-import "github.com/isther/computer/circuit"
+import "github.com/isther/go-computer/circuit"
 
 type NOTGate struct {
 	output circuit.Wire
@@ -8,7 +8,7 @@ type NOTGate struct {
 
 func NewNOTGate() *NOTGate {
 	return &NOTGate{
-		output: *circuit.NewWire(false),
+		output: *circuit.NewWire("Z", false),
 	}
 }
 

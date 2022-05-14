@@ -133,3 +133,74 @@ func TestFullAdder(t *testing.T) {
 		})
 	}
 }
+
+func TestFourBitAdder(t *testing.T) {
+	tests := []struct {
+		name string
+		a    [4]bool
+		b    [4]bool
+		si   [4]bool
+		ci   bool
+	}{
+		{
+			name: "1",
+			a:    [4]bool{false, false, false, false},
+			b:    [4]bool{false, false, false, false},
+			si:   [4]bool{false, false, false, false},
+			ci:   false,
+		},
+		{
+			name: "2",
+			a:    [4]bool{true, true, true, true},
+			b:    [4]bool{false, false, false, false},
+			si:   [4]bool{true, true, true, true},
+			ci:   false,
+		},
+		{
+			name: "3",
+			a:    [4]bool{true, false, false, false},
+			b:    [4]bool{true, false, false, false},
+			si:   [4]bool{false, true, false, false},
+			ci:   false,
+		},
+		{
+			name: "4",
+			a:    [4]bool{true, true, false, false},
+			b:    [4]bool{true, false, false, false},
+			si:   [4]bool{false, false, true, false},
+			ci:   false,
+		},
+		{
+			name: "5",
+			a:    [4]bool{true, true, true, true},
+			b:    [4]bool{true, false, false, false},
+			si:   [4]bool{false, false, false, false},
+			ci:   true,
+		},
+		{
+			name: "6",
+			a:    [4]bool{true, true, true, true},
+			b:    [4]bool{true, true, true, true},
+			si:   [4]bool{false, true, true, true},
+			ci:   true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			fourBitAdder := NewFourBitAdder()
+			fourBitAdder.Update(tt.a, tt.b)
+
+			if !reflect.DeepEqual(fourBitAdder.Si(), tt.si) || !reflect.DeepEqual(fourBitAdder.Ci(), tt.ci) {
+				t.Errorf("FourBitAdder-%s: result: %v %v want: %v %v",
+					tt.name,
+					fourBitAdder.Si(),
+					fourBitAdder.Ci(),
+					tt.si,
+					tt.ci,
+				)
+			}
+
+		})
+	}
+}

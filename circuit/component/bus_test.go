@@ -14,20 +14,20 @@ func TestBus(t *testing.T) {
 		{
 			name:  "1",
 			value: 0,
-			want:  "00000000",
+			want:  "0000000000000000",
 		}, {
 			name:  "2",
 			value: 1,
-			want:  "00000001",
+			want:  "0000000000000001",
 		}, {
 			name:  "3",
-			value: 128,
-			want:  "10000000",
+			value: 65535,
+			want:  "1111111111111111",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			bus := NewBus(8)
+			bus := NewBus(16)
 			bus.SetValue(tt.value)
 
 			if !reflect.DeepEqual(bus.String(), tt.want) {

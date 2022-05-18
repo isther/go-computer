@@ -8,59 +8,59 @@ import (
 type FourBitParallelCarry struct {
 }
 
-type Adder32Bit struct {
-	input   [64]circuit.Wire
+type Adder16Bit struct {
+	Input   [32]circuit.Wire
 	carryIn circuit.Wire
 
-	adders [32]FullAdder
+	adders [16]FullAdder
 
+	output   [16]circuit.Wire
 	carryOut circuit.Wire
-	output   [32]circuit.Wire
 }
 
-func NewAdder32Bit() *Adder32Bit {
-	adder32Bit := new(Adder32Bit)
+func NewAdder16Bit() *Adder16Bit {
+	adder16Bit := new(Adder16Bit)
 
-	for i, _ := range adder32Bit.adders {
-		adder32Bit.adders[i] = *NewFullAdder()
+	for i, _ := range adder16Bit.adders {
+		adder16Bit.adders[i] = *NewFullAdder()
 	}
 
-	return adder32Bit
+	return adder16Bit
 }
 
-func (adder32Bit *Adder32Bit) SetCarryIn(carryIn bool) *Adder32Bit {
-	adder32Bit.carryIn.Update(carryIn)
-	return adder32Bit
+func (adder16Bit *Adder16Bit) SetCarryIn(carryIn bool) *Adder16Bit {
+	adder16Bit.carryIn.Update(carryIn)
+	return adder16Bit
 }
 
-func (adder32Bit *Adder32Bit) SetInputWire(index int, value bool) {
-	adder32Bit.input[index].Update(value)
+func (adder16Bit *Adder16Bit) SetInputWire(index int, value bool) {
+	adder16Bit.Input[index].Update(value)
 	return
 }
 
-func (adder32Bit *Adder32Bit) GetOutputWire(index int) bool {
-	return adder32Bit.output[index].Value()
+func (adder16Bit *Adder16Bit) GetOutputWire(index int) bool {
+	return adder16Bit.output[index].Value()
 }
 
-func (adder32Bit *Adder32Bit) Update() *Adder32Bit {
-	aIndex := 63
-	bIndex := 31
-	for i := len(adder32Bit.adders) - 1; i >= 0; i-- {
-		adder32Bit.adders[i].Update(adder32Bit.input[aIndex].Value(), adder32Bit.input[bIndex].Value(), adder32Bit.carryIn.Value())
+func (adder16Bit *Adder16Bit) Update() *Adder16Bit {
+	aIndex := 32 - 1
+	bIndex := 16 - 1
+	for i := len(adder16Bit.adders) - 1; i >= 0; i-- {
+		adder16Bit.adders[i].Update(adder16Bit.Input[aIndex].Value(), adder16Bit.Input[bIndex].Value(), adder16Bit.carryIn.Value())
 
-		adder32Bit.output[i].Update(adder32Bit.adders[i].Sum())
-		adder32Bit.carryOut.Update(adder32Bit.adders[i].Carry())
+		adder16Bit.output[i].Update(adder16Bit.adders[i].Sum())
+		adder16Bit.carryOut.Update(adder16Bit.adders[i].Carry())
 
-		adder32Bit.carryIn.Update(adder32Bit.adders[i].Carry())
+		adder16Bit.carryIn.Update(adder16Bit.adders[i].Carry())
 
 		aIndex--
 		bIndex--
 	}
-	return adder32Bit
+	return adder16Bit
 }
 
-func (adder32Bit *Adder32Bit) Carry() bool {
-	return adder32Bit.carryOut.Value()
+func (adder16Bit *Adder16Bit) Carry() bool {
+	return adder16Bit.carryOut.Value()
 }
 
 type FullAdder struct {

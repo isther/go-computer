@@ -52,22 +52,22 @@ func Test32BitAdder(t *testing.T) {
 		{"3", 0, 1, false, 1, false},
 		{"4", 1, 1, false, 2, false},
 		{"5", 0, 0, true, 1, false},
-		{"6", 2147483648, 2147483648, false, 0, true},
-		{"7", 2147483649, 2147483648, false, 1, true},
-		{"8", 4294967295, 2, false, 1, true},
+		{"6", 32768, 32768, false, 0, true},
+		{"7", 32769, 32768, false, 1, true},
+		{"8", 65535, 2, false, 1, true},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			adder32Bit := NewAdder32Bit()
-			setWireOn32(adder32Bit, tt.a, tt.b)
-			adder32Bit.SetCarryIn(tt.carryIn).Update()
+			adder16Bit := NewAdder16Bit()
+			setWireOn16(adder16Bit, tt.a, tt.b)
+			adder16Bit.SetCarryIn(tt.carryIn).Update()
 
-			if !reflect.DeepEqual(adder32Bit.Carry(), tt.carry) || !reflect.DeepEqual(getValueOfOutput(adder32Bit, 32), tt.want) {
-				t.Errorf("Adder32Bit-%s result: %v %v want: %v %v",
+			if !reflect.DeepEqual(adder16Bit.Carry(), tt.carry) || !reflect.DeepEqual(getValueOfOutput(adder16Bit, 16), tt.want) {
+				t.Errorf("Adder16Bit-%s result: %v %v want: %v %v",
 					tt.name,
-					getValueOfOutput(adder32Bit, 32),
-					adder32Bit.Carry(),
+					getValueOfOutput(adder16Bit, 16),
+					adder16Bit.Carry(),
 					tt.want,
 					tt.carry,
 				)
@@ -77,9 +77,9 @@ func Test32BitAdder(t *testing.T) {
 	}
 }
 
-func setWireOn32(c Component, inputA int, inputB int) {
-	var x uint32 = 0
-	for i := 32 - 1; i >= 0; i-- {
+func setWireOn16(c Component, inputA int, inputB int) {
+	var x uint16 = 0
+	for i := 16 - 1; i >= 0; i-- {
 		r := (inputA & (1 << x))
 		if r != 0 {
 			c.SetInputWire(i, true)
@@ -90,7 +90,7 @@ func setWireOn32(c Component, inputA int, inputB int) {
 	}
 
 	x = 0
-	for i := 64 - 1; i >= 32; i-- {
+	for i := 32 - 1; i >= 16; i-- {
 		r := (inputB & (1 << x))
 		if r != 0 {
 			c.SetInputWire(i, true)
@@ -106,9 +106,9 @@ func getValueOfOutput(c Component, outputBits int) int {
 	var result int
 	for i := (outputBits - 1); i >= 0; i-- {
 		if c.GetOutputWire(i) {
-			result = result | (1 << uint32(x))
+			result = result | (1 << uint16(x))
 		} else {
-			result = result & ^(1 << uint32(x))
+			result = result & ^(1 << uint16(x))
 		}
 		x++
 	}

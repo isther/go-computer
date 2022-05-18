@@ -4,7 +4,7 @@ import (
 	"github.com/isther/go-computer/circuit"
 )
 
-const BUS_WIDTH = 32
+const BUS_WIDTH = 16
 
 type Bus struct {
 	wires []circuit.Wire
@@ -22,12 +22,12 @@ func NewBus(width int) *Bus {
 	return bus
 }
 
-func (bus *Bus) Input(index int, value bool) *Bus {
+func (bus *Bus) SetInputWire(index int, value bool) *Bus {
 	bus.wires[index].Update(value)
 	return bus
 }
 
-func (bus *Bus) Output(index int) bool {
+func (bus *Bus) GetOutputWire(index int) bool {
 	return bus.wires[index].Value()
 }
 
@@ -36,9 +36,9 @@ func (bus *Bus) SetValue(value uint16) {
 	for i := bus.width - 1; i >= 0; i-- {
 		r := (value & (1 << uint16(x)))
 		if r != 0 {
-			bus.Input(i, true)
+			bus.SetInputWire(i, true)
 		} else {
-			bus.Input(i, false)
+			bus.SetInputWire(i, false)
 		}
 		x++
 	}
@@ -47,7 +47,7 @@ func (bus *Bus) SetValue(value uint16) {
 func (bus *Bus) String() string {
 	ret := ""
 	for i := 0; i < bus.width; i++ {
-		if bus.Output(i) {
+		if bus.GetOutputWire(i) {
 			ret += "1"
 		} else {
 			ret += "0"

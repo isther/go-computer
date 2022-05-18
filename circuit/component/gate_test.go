@@ -14,17 +14,11 @@ func TestXORGates(t *testing.T) {
 		{"1", []bool{
 			false, false, false, false, false, false, false, true,
 			false, false, false, false, false, false, false, false,
-			false, false, false, false, false, false, false, false,
-			false, false, false, false, false, false, false, false,
 
 			false, false, false, false, false, false, false, true,
-			false, false, false, false, false, false, false, false,
-			true, true, true, true, true, true, true, true,
 			true, true, true, true, true, true, true, true,
 		}, []bool{
 			false, false, false, false, false, false, false, false,
-			false, false, false, false, false, false, false, false,
-			true, true, true, true, true, true, true, true,
 			true, true, true, true, true, true, true, true,
 		}},
 	}
@@ -49,13 +43,9 @@ func TestNOTGates(t *testing.T) {
 	}{
 		{"1", []bool{
 			false, false, false, false, false, false, false, true,
-			false, false, false, false, false, false, false, false,
-			true, true, true, true, true, true, true, true,
 			true, true, true, true, true, true, true, false,
 		}, []bool{
 			true, true, true, true, true, true, true, false,
-			true, true, true, true, true, true, true, true,
-			false, false, false, false, false, false, false, false,
 			false, false, false, false, false, false, false, true,
 		}},
 	}
@@ -81,17 +71,11 @@ func TestORGates(t *testing.T) {
 		{"1", []bool{
 			false, false, false, false, false, false, false, true,
 			false, false, false, false, false, false, false, false,
-			false, false, false, false, false, false, false, false,
-			false, false, false, false, false, false, false, false,
 
 			false, false, false, false, false, false, false, true,
-			false, false, false, false, false, false, false, false,
-			true, true, true, true, true, true, true, true,
 			true, true, true, true, true, true, true, true,
 		}, []bool{
 			false, false, false, false, false, false, false, true,
-			false, false, false, false, false, false, false, false,
-			true, true, true, true, true, true, true, true,
 			true, true, true, true, true, true, true, true,
 		}},
 	}
@@ -118,17 +102,11 @@ func TestANDGates(t *testing.T) {
 		{"1", []bool{
 			false, false, false, false, false, false, false, true,
 			false, false, false, false, false, false, false, false,
-			false, false, false, false, false, false, false, false,
-			false, false, false, false, false, false, false, false,
 
 			false, false, false, false, false, false, false, true,
-			false, false, false, false, false, false, false, false,
-			true, true, true, true, true, true, true, true,
 			true, true, true, true, true, true, true, true,
 		}, []bool{
 			false, false, false, false, false, false, false, true,
-			false, false, false, false, false, false, false, false,
-			false, false, false, false, false, false, false, false,
 			false, false, false, false, false, false, false, false,
 		}},
 	}
@@ -153,7 +131,7 @@ func initInputs(c Component, value []bool) {
 
 func getOutputs(c Component) []bool {
 	res := []bool{}
-	for i := 0; i < 32; i++ {
+	for i := 0; i < BUS_WIDTH; i++ {
 		res = append(res, c.GetOutputWire(i))
 	}
 	return res

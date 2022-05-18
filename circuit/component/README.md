@@ -37,3 +37,13 @@
 ## Four Bit Adder
 
 ![](../../image/four_bit_adder.png)
+
+## Carry-Lookahead Adders
+
+### 4-bit
+
+![](../../image/four_bit_paralled_adder.png)
+
+### 16-bit
+
+![](../../image/16_bit_paralled_adder.png)

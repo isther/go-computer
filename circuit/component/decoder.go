@@ -5,15 +5,59 @@ import (
 	"github.com/isther/go-computer/circuit/gate"
 )
 
-type Decoder struct {
+type Decoder8x256 struct {
+	decoderSelector Decoder4x16
+	decoders4x16    [16]Decoder4x16
+	index           int
+}
+
+func NewDecoder8x256() *Decoder8x256 {
+	d := new(Decoder8x256)
+
+	d.decoderSelector = *NewDecoder4x16()
+
+	for i := range d.decoders4x16 {
+		d.decoders4x16[i] = *NewDecoder4x16()
+	}
+
+	return d
+}
+
+// Returns the index which is enabled
+func (d *Decoder8x256) Index() int {
+	return d.index
+}
+
+func (dc *Decoder8x256) Update(a, b, c, d, e, f, g, h bool) {
+	dc.index = 0
+
+	dc.decoderSelector.Update(e, f, g, h)
+	for i := 0; i < 16; i++ {
+		dc.updateDecoder(a, b, c, d, i, 16*i)
+	}
+}
+
+func (dc *Decoder8x256) updateDecoder(a, b, c, d bool, decoderIndex int, outputWireStart int) {
+	if dc.decoderSelector.GetOutputWire(decoderIndex) {
+		dc.decoders4x16[decoderIndex].Update(a, b, c, d)
+
+		for i := 0; i < 16; i++ {
+			if dc.decoders4x16[decoderIndex].outputs[i].Value() {
+				dc.index = outputWireStart + i
+			}
+		}
+	}
+}
+
+type Decoder4x16 struct {
 	notGates [4]gate.NOTGate
 	andGates [16]ANDGate4
 	outputs  [16]circuit.Wire
 	index    int
 }
 
-func NewDecoder() *Decoder {
-	d := new(Decoder)
+func NewDecoder4x16() *Decoder4x16 {
+	d := new(Decoder4x16)
 
 	for i, _ := range d.notGates {
 		d.notGates[i] = *gate.NewNOTGate()
@@ -26,17 +70,17 @@ func NewDecoder() *Decoder {
 	return d
 }
 
-func (d *Decoder) Index() int {
+func (d *Decoder4x16) Index() int {
 	return d.index
 }
 
-func (d *Decoder) GetOutputWire(index int) bool {
+func (d *Decoder4x16) GetOutputWire(index int) bool {
 	return d.outputs[index].Value()
 }
 
-func (a *Decoder) SetInputWire(index int, value bool) {}
+func (a *Decoder4x16) SetInputWire(index int, value bool) {}
 
-func (d *Decoder) Update(inputA, inputB, inputC, inputD bool) {
+func (d *Decoder4x16) Update(inputA, inputB, inputC, inputD bool) {
 	// https://www.elprocus.com/designing-4-to-16-decoder-using-3-to-8-decoder/
 	d.notGates[0].Update(inputA)
 	d.notGates[1].Update(inputB)

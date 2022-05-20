@@ -30,7 +30,7 @@ func TestDecoder(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			decoder := NewDecoder()
+			decoder := NewDecoder4x16()
 			decoder.Update(tt.a, tt.b, tt.c, tt.d)
 			if !reflect.DeepEqual(decoder.Index(), tt.want) {
 				t.Errorf("Decoder-%s", tt.name)

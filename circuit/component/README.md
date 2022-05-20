@@ -47,3 +47,25 @@
 ### 16-bit
 
 ![](../../image/16_bit_paralled_adder.png)
+
+## Enabler
+
+![](../../image/enabler.png)
+
+## Mem
+
+### 1-bit
+
+![](../../image/mem_1_bit.png)
+
+### 8-bit
+
+![](../../image/mem_8_bit.png)
+
+### 16-bit
+
+![](../../image/mem_16_bit.png)
+
+## Register
+
+![](../../image/register.png)

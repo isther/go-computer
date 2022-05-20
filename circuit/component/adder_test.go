@@ -38,13 +38,13 @@ func TestFullAdder(t *testing.T) {
 	}
 }
 
-func Test32BitAdder(t *testing.T) {
+func Test16BitAdder(t *testing.T) {
 	tests := []struct {
 		name    string
 		a       int
 		b       int
 		carryIn bool
-		want    int
+		want    uint16
 		carry   bool
 	}{
 		{"1", 0, 0, false, 0, false},
@@ -63,10 +63,10 @@ func Test32BitAdder(t *testing.T) {
 			setWireOn16(adder16Bit, tt.a, tt.b)
 			adder16Bit.SetCarryIn(tt.carryIn).Update()
 
-			if !reflect.DeepEqual(adder16Bit.Carry(), tt.carry) || !reflect.DeepEqual(getValueOfOutput(adder16Bit, 16), tt.want) {
+			if !reflect.DeepEqual(adder16Bit.Carry(), tt.carry) || !reflect.DeepEqual(getValueOfAdderOutput(adder16Bit), tt.want) {
 				t.Errorf("Adder16Bit-%s result: %v %v want: %v %v",
 					tt.name,
-					getValueOfOutput(adder16Bit, 16),
+					getValueOfAdderOutput(adder16Bit),
 					adder16Bit.Carry(),
 					tt.want,
 					tt.carry,
@@ -101,10 +101,10 @@ func setWireOn16(c Component, inputA int, inputB int) {
 	}
 }
 
-func getValueOfOutput(c Component, outputBits int) int {
+func getValueOfAdderOutput(c Component) uint16 {
 	var x int = 0
-	var result int
-	for i := (outputBits - 1); i >= 0; i-- {
+	var result uint16
+	for i := (16 - 1); i >= 0; i-- {
 		if c.GetOutputWire(i) {
 			result = result | (1 << uint16(x))
 		} else {

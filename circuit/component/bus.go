@@ -22,9 +22,8 @@ func NewBus(width int) *Bus {
 	return bus
 }
 
-func (bus *Bus) SetInputWire(index int, value bool) *Bus {
+func (bus *Bus) SetInputWire(index int, value bool) {
 	bus.wires[index].Update(value)
-	return bus
 }
 
 func (bus *Bus) GetOutputWire(index int) bool {
@@ -42,6 +41,22 @@ func (bus *Bus) SetValue(value uint16) {
 		}
 		x++
 	}
+}
+
+func (bus *Bus) Value() uint16 {
+	var (
+		result uint16
+		x      uint16
+	)
+	for i := BUS_WIDTH - 1; i >= 0; i-- {
+		if bus.GetOutputWire(i) {
+			result = result | (1 << uint16(x))
+		} else {
+			result = result & ^(1 << uint16(x))
+		}
+		x++
+	}
+	return result
 }
 
 func (bus *Bus) String() string {

@@ -74,7 +74,7 @@ func (a *NOTGates) Update() {
 }
 
 type ORGates struct {
-	inputs  [BUS_WIDTH * 2]circuit.Wire
+	Inputs  [BUS_WIDTH * 2]circuit.Wire
 	gates   [BUS_WIDTH]gate.ORGate
 	outputs [BUS_WIDTH]circuit.Wire
 }
@@ -94,14 +94,14 @@ func (a *ORGates) GetOutputWire(index int) bool {
 }
 
 func (a *ORGates) SetInputWire(index int, value bool) {
-	a.inputs[index].Update(value)
+	a.Inputs[index].Update(value)
 }
 
 func (a *ORGates) Update() {
 	awire := BUS_WIDTH
 	bwire := 0
 	for i, _ := range a.gates {
-		a.gates[i].Update(a.inputs[awire].Value(), a.inputs[bwire].Value())
+		a.gates[i].Update(a.Inputs[awire].Value(), a.Inputs[bwire].Value())
 		a.outputs[i].Update(a.gates[i].Value())
 		awire++
 		bwire++
@@ -143,6 +143,40 @@ func (a *ANDGates) Update() {
 	}
 }
 
+type ANDGate3 struct {
+	inputA circuit.Wire
+	inputB circuit.Wire
+	inputC circuit.Wire
+	andA   gate.ANDGate
+	andB   gate.ANDGate
+	output circuit.Wire
+}
+
+func NewANDGate3() *ANDGate3 {
+	a := new(ANDGate3)
+
+	a.inputA = *circuit.NewWire("a", false)
+	a.inputB = *circuit.NewWire("b", false)
+	a.inputC = *circuit.NewWire("c", false)
+	a.output = *circuit.NewWire("d", false)
+
+	a.andA = *gate.NewANDGate()
+	a.andB = *gate.NewANDGate()
+
+	return a
+}
+
+func (g *ANDGate3) Value() bool {
+	return g.output.Value()
+}
+
+func (g *ANDGate3) Update(inputA bool, inputB bool, inputC bool) {
+	g.andA.Update(inputA, inputB)
+	g.andB.Update(g.andA.Value(), inputC)
+
+	g.output.Update(g.andB.Value())
+}
+
 type ANDGate4 struct {
 	inputA circuit.Wire
 	inputB circuit.Wire
@@ -170,7 +204,7 @@ func NewANDGate4() *ANDGate4 {
 	return a
 }
 
-func (g *ANDGate4) Output() bool {
+func (g *ANDGate4) Value() bool {
 	return g.output.Value()
 }
 

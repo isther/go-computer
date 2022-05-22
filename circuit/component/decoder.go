@@ -59,11 +59,11 @@ type Decoder4x16 struct {
 func NewDecoder4x16() *Decoder4x16 {
 	d := new(Decoder4x16)
 
-	for i, _ := range d.notGates {
+	for i := range d.notGates {
 		d.notGates[i] = *gate.NewNOTGate()
 	}
 
-	for i, _ := range d.andGates {
+	for i := range d.andGates {
 		d.andGates[i] = *NewANDGate4()
 	}
 
@@ -129,11 +129,11 @@ type Decoder3x8 struct {
 func NewDecoder3x8() *Decoder3x8 {
 	d := new(Decoder3x8)
 
-	for i, _ := range d.notGates {
+	for i := range d.notGates {
 		d.notGates[i] = *gate.NewNOTGate()
 	}
 
-	for i, _ := range d.andGates {
+	for i := range d.andGates {
 		d.andGates[i] = *NewANDGate3()
 	}
 
@@ -174,7 +174,7 @@ func (d *Decoder3x8) Update(inputA, inputB, inputC bool) {
 	d.andGates[6].Update(d.inputA.Value(), d.inputB.Value(), d.notGates[2].Value())
 	d.andGates[7].Update(d.inputA.Value(), d.inputB.Value(), d.inputC.Value())
 
-	for i, _ := range d.outputs {
+	for i := range d.outputs {
 		d.outputs[i].Update(d.andGates[i].Value())
 	}
 }

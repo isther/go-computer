@@ -21,7 +21,7 @@ type Adder16Bit struct {
 func NewAdder16Bit() *Adder16Bit {
 	adder16Bit := new(Adder16Bit)
 
-	for i, _ := range adder16Bit.adders {
+	for i := range adder16Bit.adders {
 		adder16Bit.adders[i] = *NewFullAdder()
 	}
 

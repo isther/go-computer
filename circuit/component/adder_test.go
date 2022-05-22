@@ -44,7 +44,7 @@ func Test16BitAdder(t *testing.T) {
 		inputA  uint16
 		inputB  uint16
 		carryIn bool
-		expect    uint16
+		expect  uint16
 		carry   bool
 	}{
 		{"1", 0, 0, false, 0, false},

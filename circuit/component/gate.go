@@ -14,7 +14,7 @@ type XORGates struct {
 func NewXORGates() *XORGates {
 	a := new(XORGates)
 
-	for i, _ := range a.gates {
+	for i := range a.gates {
 		a.gates[i] = *gate.NewXORGate()
 	}
 
@@ -32,7 +32,7 @@ func (a *XORGates) SetInputWire(index int, value bool) {
 func (a *XORGates) Update() {
 	awire := BUS_WIDTH
 	bwire := 0
-	for i, _ := range a.gates {
+	for i := range a.gates {
 		a.gates[i].Update(a.inputs[awire].Value(), a.inputs[bwire].Value())
 		a.outputs[i].Update(a.gates[i].Value())
 		awire++
@@ -49,7 +49,7 @@ type NOTGates struct {
 func NewNOTGates() *NOTGates {
 	a := new(NOTGates)
 
-	for i, _ := range a.gates {
+	for i := range a.gates {
 		a.gates[i] = *gate.NewNOTGate()
 	}
 
@@ -66,7 +66,7 @@ func (a *NOTGates) SetInputWire(index int, value bool) {
 
 func (a *NOTGates) Update() {
 	wire := 0
-	for i, _ := range a.gates {
+	for i := range a.gates {
 		a.gates[i].Update(a.inputs[wire].Value())
 		a.outputs[i].Update(a.gates[i].Value())
 		wire++
@@ -82,7 +82,7 @@ type ORGates struct {
 func NewORGates() *ORGates {
 	a := new(ORGates)
 
-	for i, _ := range a.gates {
+	for i := range a.gates {
 		a.gates[i] = *gate.NewORGate()
 	}
 
@@ -100,7 +100,7 @@ func (a *ORGates) SetInputWire(index int, value bool) {
 func (a *ORGates) Update() {
 	awire := BUS_WIDTH
 	bwire := 0
-	for i, _ := range a.gates {
+	for i := range a.gates {
 		a.gates[i].Update(a.Inputs[awire].Value(), a.Inputs[bwire].Value())
 		a.outputs[i].Update(a.gates[i].Value())
 		awire++
@@ -117,7 +117,7 @@ type ANDGates struct {
 func NewANDGates() *ANDGates {
 	a := new(ANDGates)
 
-	for i, _ := range a.gates {
+	for i := range a.gates {
 		a.gates[i] = *gate.NewANDGate()
 	}
 
@@ -135,7 +135,7 @@ func (a *ANDGates) SetInputWire(index int, value bool) {
 func (a *ANDGates) Update() {
 	awire := BUS_WIDTH
 	bwire := 0
-	for i, _ := range a.gates {
+	for i := range a.gates {
 		a.gates[i].Update(a.inputs[awire].Value(), a.inputs[bwire].Value())
 		a.outputs[i].Update(a.gates[i].Value())
 		awire++

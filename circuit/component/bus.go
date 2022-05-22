@@ -4,7 +4,6 @@ import (
 	"github.com/isther/go-computer/circuit"
 )
 
-
 type Bus struct {
 	wires []circuit.Wire
 	width int
@@ -14,7 +13,7 @@ func NewBus(width int) *Bus {
 	bus := new(Bus)
 	bus.width = width
 	bus.wires = make([]circuit.Wire, width)
-	for i, _ := range bus.wires {
+	for i := range bus.wires {
 		bus.wires[i] = *circuit.NewWire("", false)
 	}
 

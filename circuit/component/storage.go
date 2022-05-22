@@ -16,7 +16,7 @@ func NewWord() *Word {
 	word := new(Word)
 
 	// initialize all bit to false
-	for i, _ := range word.bits {
+	for i := range word.bits {
 		word.bits[i].Update(false, true)
 	}
 	return word

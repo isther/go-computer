@@ -7,10 +7,10 @@ import (
 
 func TestWord(t *testing.T) {
 	tests := []struct {
-		name  string
-		input uint16
-		set   bool
-		expect  uint16
+		name   string
+		input  uint16
+		set    bool
+		expect uint16
 	}{
 		{"1", 0x0000, true, 0x0000},
 		{"2", 0x00FF, true, 0x00FF},
@@ -43,7 +43,7 @@ func TestBit(t *testing.T) {
 		name       string
 		init       bool
 		input, set bool
-		expect       bool
+		expect     bool
 	}{
 		{"1", false, true, true, true},
 		{"2", false, false, true, false},

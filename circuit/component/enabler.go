@@ -15,7 +15,7 @@ type Enabler struct {
 func NewEnabler() *Enabler {
 	e := new(Enabler)
 
-	for i, _ := range e.gates {
+	for i := range e.gates {
 		e.gates[i] = *gate.NewANDGate()
 	}
 	return e

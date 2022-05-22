@@ -9,7 +9,7 @@ func TestDecoder(t *testing.T) {
 	tests := []struct {
 		name       string
 		a, b, c, d bool
-		expect       int
+		expect     int
 	}{
 		{"1", false, false, false, false, 0},
 		{"2", false, false, false, true, 1},

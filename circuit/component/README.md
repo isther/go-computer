@@ -48,9 +48,12 @@
 
 ![](../../image/16_bit_paralled_adder.png)
 
-## Enabler
+## 16-bit logic gate
 
-![](../../image/enabler.png)
+![](../../image/16_bit_not_gate.png)
+![](../../image/16_bit_and_gate.png)
+![](../../image/16_bit_or_gate.png)
+![](../../image/16_bit_xor_gate.png)
 
 ## Mem
 
@@ -65,6 +68,10 @@
 ### 16-bit
 
 ![](../../image/mem_16_bit.png)
+
+## Enabler
+
+![](../../image/enabler.png)
 
 ## Register
 

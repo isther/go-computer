@@ -109,9 +109,72 @@ func (d *Decoder4x16) Update(inputA, inputB, inputC, inputD bool) {
 
 	d.index = 0
 	for i := 0; i < len(d.outputs); i++ {
-		d.outputs[i].Update(d.andGates[i].output.Value())
+		d.outputs[i].Update(d.andGates[i].Value())
 		if d.outputs[i].Value() {
 			d.index += i
 		}
+	}
+}
+
+type Decoder3x8 struct {
+	inputA circuit.Wire
+	inputB circuit.Wire
+	inputC circuit.Wire
+
+	notGates [3]gate.NOTGate
+	andGates [8]ANDGate3
+	outputs  [8]circuit.Wire
+}
+
+func NewDecoder3x8() *Decoder3x8 {
+	d := new(Decoder3x8)
+
+	for i, _ := range d.notGates {
+		d.notGates[i] = *gate.NewNOTGate()
+	}
+
+	for i, _ := range d.andGates {
+		d.andGates[i] = *NewANDGate3()
+	}
+
+	return d
+}
+
+func (d *Decoder3x8) GetOutputWire(index int) bool {
+	return d.outputs[index].Value()
+}
+
+// Returns the index which is enabled
+func (d *Decoder3x8) Index() int {
+	for i := range d.outputs {
+		if d.outputs[i].Value() {
+			return i
+		}
+	}
+
+	return 0
+}
+
+func (d *Decoder3x8) Update(inputA, inputB, inputC bool) {
+	d.inputA.Update(inputA)
+	d.inputB.Update(inputB)
+	d.inputC.Update(inputC)
+
+	d.notGates[0].Update(d.inputA.Value())
+	d.notGates[1].Update(d.inputB.Value())
+	d.notGates[2].Update(d.inputC.Value())
+
+	d.andGates[0].Update(d.notGates[0].Value(), d.notGates[1].Value(), d.notGates[2].Value())
+	d.andGates[1].Update(d.notGates[0].Value(), d.notGates[1].Value(), d.inputC.Value())
+	d.andGates[2].Update(d.notGates[0].Value(), d.inputB.Value(), d.notGates[2].Value())
+	d.andGates[3].Update(d.notGates[0].Value(), d.inputB.Value(), d.inputC.Value())
+
+	d.andGates[4].Update(d.inputA.Value(), d.notGates[1].Value(), d.notGates[2].Value())
+	d.andGates[5].Update(d.inputA.Value(), d.notGates[1].Value(), d.inputC.Value())
+	d.andGates[6].Update(d.inputA.Value(), d.inputB.Value(), d.notGates[2].Value())
+	d.andGates[7].Update(d.inputA.Value(), d.inputB.Value(), d.inputC.Value())
+
+	for i, _ := range d.outputs {
+		d.outputs[i].Update(d.andGates[i].Value())
 	}
 }

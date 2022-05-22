@@ -9,7 +9,7 @@ func TestDecoder(t *testing.T) {
 	tests := []struct {
 		name       string
 		a, b, c, d bool
-		want       int
+		expect       int
 	}{
 		{"1", false, false, false, false, 0},
 		{"2", false, false, false, true, 1},
@@ -32,7 +32,7 @@ func TestDecoder(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			decoder := NewDecoder4x16()
 			decoder.Update(tt.a, tt.b, tt.c, tt.d)
-			if !reflect.DeepEqual(decoder.Index(), tt.want) {
+			if !reflect.DeepEqual(decoder.Index(), tt.expect) {
 				t.Errorf("Decoder-%s", tt.name)
 			}
 

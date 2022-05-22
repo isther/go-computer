@@ -40,7 +40,7 @@ func TestBus(t *testing.T) {
 			bus.SetValue(tt.value)
 
 			if !reflect.DeepEqual(bus.Value(), tt.wantValue) || !reflect.DeepEqual(bus.String(), tt.wantStr) {
-				t.Errorf("Bus-%s result: %v %s want: %v %s", tt.name, bus.Value(), bus.String(), tt.wantValue, tt.wantStr)
+				t.Errorf("Bus-%s result: %v %s expect: %v %s", tt.name, bus.Value(), bus.String(), tt.wantValue, tt.wantStr)
 			}
 		})
 	}

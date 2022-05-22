@@ -27,7 +27,7 @@ func TestFullAdder(t *testing.T) {
 			fullAdder.Update(tt.a, tt.b, tt.carry)
 
 			if !reflect.DeepEqual(fullAdder.Sum(), tt.si) || !reflect.DeepEqual(fullAdder.Carry(), tt.ci) {
-				t.Errorf("FullAdder-%s: value: %v %v %v result: %v %v want: %v %v",
+				t.Errorf("FullAdder-%s: value: %v %v %v result: %v %v expect: %v %v",
 					tt.name,
 					tt.a, tt.b, tt.carry,
 					fullAdder.Sum(), fullAdder.Carry(),
@@ -41,10 +41,10 @@ func TestFullAdder(t *testing.T) {
 func Test16BitAdder(t *testing.T) {
 	tests := []struct {
 		name    string
-		a       int
-		b       int
+		inputA  uint16
+		inputB  uint16
 		carryIn bool
-		want    uint16
+		expect    uint16
 		carry   bool
 	}{
 		{"1", 0, 0, false, 0, false},
@@ -60,57 +60,19 @@ func Test16BitAdder(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			adder16Bit := NewAdder16Bit()
-			setWireOn16(adder16Bit, tt.a, tt.b)
+			setWireOn16x2(adder16Bit, tt.inputA, tt.inputB)
 			adder16Bit.SetCarryIn(tt.carryIn).Update()
 
-			if !reflect.DeepEqual(adder16Bit.Carry(), tt.carry) || !reflect.DeepEqual(getValueOfAdderOutput(adder16Bit), tt.want) {
-				t.Errorf("Adder16Bit-%s result: %v %v want: %v %v",
+			if !reflect.DeepEqual(adder16Bit.Carry(), tt.carry) || !reflect.DeepEqual(getComponentOutput(adder16Bit), tt.expect) {
+				t.Errorf("Adder16Bit-%s result: %v %v expect: %v %v",
 					tt.name,
-					getValueOfAdderOutput(adder16Bit),
+					getComponentOutput(adder16Bit),
 					adder16Bit.Carry(),
-					tt.want,
+					tt.expect,
 					tt.carry,
 				)
 			}
 
 		})
 	}
-}
-
-func setWireOn16(c Component, inputA int, inputB int) {
-	var x uint16 = 0
-	for i := 16 - 1; i >= 0; i-- {
-		r := (inputA & (1 << x))
-		if r != 0 {
-			c.SetInputWire(i, true)
-		} else {
-			c.SetInputWire(i, false)
-		}
-		x++
-	}
-
-	x = 0
-	for i := 32 - 1; i >= 16; i-- {
-		r := (inputB & (1 << x))
-		if r != 0 {
-			c.SetInputWire(i, true)
-		} else {
-			c.SetInputWire(i, false)
-		}
-		x++
-	}
-}
-
-func getValueOfAdderOutput(c Component) uint16 {
-	var x int = 0
-	var result uint16
-	for i := (16 - 1); i >= 0; i-- {
-		if c.GetOutputWire(i) {
-			result = result | (1 << uint16(x))
-		} else {
-			result = result & ^(1 << uint16(x))
-		}
-		x++
-	}
-	return result
 }

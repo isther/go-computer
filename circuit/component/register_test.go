@@ -38,7 +38,7 @@ func TestRegister(t *testing.T) {
 			r.Update()
 
 			if !reflect.DeepEqual(r.Value(), tt.wantStorage) {
-				t.Errorf("Register-%s: result: %v want: %v", tt.name, r.Value(), tt.wantStorage)
+				t.Errorf("Register-%s: result: %v expect: %v", tt.name, r.Value(), tt.wantStorage)
 			}
 
 			if tt.enable {
@@ -46,7 +46,7 @@ func TestRegister(t *testing.T) {
 			}
 			r.Update()
 			if !reflect.DeepEqual(r.outputBus.Value(), tt.wantOutput) {
-				t.Errorf("Register-%s: result: %v want: %v", tt.name, r.outputBus.Value(), tt.wantOutput)
+				t.Errorf("Register-%s: result: %v expect: %v", tt.name, r.outputBus.Value(), tt.wantOutput)
 				t.Log(r.enabler.outputs)
 			}
 		})

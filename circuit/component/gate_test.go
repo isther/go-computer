@@ -7,28 +7,22 @@ import (
 
 func TestXORGates(t *testing.T) {
 	tests := []struct {
-		name  string
-		input []bool
-		want  []bool
+		name   string
+		inputA uint16
+		inputB uint16
+		expect uint16
 	}{
-		{"1", []bool{
-			false, false, false, false, false, false, false, true,
-			false, false, false, false, false, false, false, false,
-
-			false, false, false, false, false, false, false, true,
-			true, true, true, true, true, true, true, true,
-		}, []bool{
-			false, false, false, false, false, false, false, false,
-			true, true, true, true, true, true, true, true,
-		}},
+		{"1", 0x0000, 0x0000, 0x0000},
+		{"2", 0x0000, 0x00FF, 0x00FF},
+		{"3", 0xFF00, 0x0000, 0xFF00},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			xorGates := NewXORGates()
-			initInputs(xorGates, tt.input)
+			setWireOn16x2(xorGates, tt.inputA, tt.inputB)
 			xorGates.Update()
 
-			if !reflect.DeepEqual(getOutputs(xorGates), tt.want) {
+			if !reflect.DeepEqual(getComponentOutput(xorGates), tt.expect) {
 				t.Errorf("XORGates-%s", tt.name)
 			}
 		})
@@ -37,25 +31,20 @@ func TestXORGates(t *testing.T) {
 
 func TestNOTGates(t *testing.T) {
 	tests := []struct {
-		name  string
-		input []bool
-		want  []bool
+		name   string
+		input  uint16
+		expect uint16
 	}{
-		{"1", []bool{
-			false, false, false, false, false, false, false, true,
-			true, true, true, true, true, true, true, false,
-		}, []bool{
-			true, true, true, true, true, true, true, false,
-			false, false, false, false, false, false, false, true,
-		}},
+		{"1", 0x00FF, 0xFF00},
+		{"2", 0xFF00, 0x00FF},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			notGates := NewNOTGates()
-			initInputs(notGates, tt.input)
+			setWireOn16(notGates, tt.input)
 			notGates.Update()
 
-			if !reflect.DeepEqual(getOutputs(notGates), tt.want) {
+			if !reflect.DeepEqual(getComponentOutput(notGates), tt.expect) {
 				t.Errorf("NOTGates-%s", tt.name)
 			}
 		})
@@ -64,29 +53,23 @@ func TestNOTGates(t *testing.T) {
 
 func TestORGates(t *testing.T) {
 	tests := []struct {
-		name  string
-		input []bool
-		want  []bool
+		name   string
+		inputA uint16
+		inputB uint16
+		expect uint16
 	}{
-		{"1", []bool{
-			false, false, false, false, false, false, false, true,
-			false, false, false, false, false, false, false, false,
-
-			false, false, false, false, false, false, false, true,
-			true, true, true, true, true, true, true, true,
-		}, []bool{
-			false, false, false, false, false, false, false, true,
-			true, true, true, true, true, true, true, true,
-		}},
+		{"1", 0x0000, 0x0000, 0x0000},
+		{"2", 0x0000, 0x00FF, 0x00FF},
+		{"3", 0xFF00, 0x0000, 0xFF00},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			orGates := NewORGates()
-			initInputs(orGates, tt.input)
+			setWireOn16x2(orGates, tt.inputA, tt.inputB)
 			orGates.Update()
 
-			if !reflect.DeepEqual(getOutputs(orGates), tt.want) {
-				t.Errorf("ORGates-%s", tt.name)
+			if !reflect.DeepEqual(getComponentOutput(orGates), tt.expect) {
+				t.Errorf("ORGates-%s: result: %v expect: %v", tt.name, getComponentOutput(orGates), tt.expect)
 			}
 		})
 	}
@@ -95,44 +78,25 @@ func TestORGates(t *testing.T) {
 func TestANDGates(t *testing.T) {
 
 	tests := []struct {
-		name  string
-		input []bool
-		want  []bool
+		name   string
+		inputA uint16
+		inputB uint16
+		expect uint16
 	}{
-		{"1", []bool{
-			false, false, false, false, false, false, false, true,
-			false, false, false, false, false, false, false, false,
-
-			false, false, false, false, false, false, false, true,
-			true, true, true, true, true, true, true, true,
-		}, []bool{
-			false, false, false, false, false, false, false, true,
-			false, false, false, false, false, false, false, false,
-		}},
+		{"1", 0x0000, 0x0000, 0x0000},
+		{"2", 0x0000, 0x00FF, 0x0000},
+		{"3", 0xFF00, 0x0000, 0x0000},
+		{"4", 0xFFFF, 0xFFFF, 0xFFFF},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			andGates := NewANDGates()
-			initInputs(andGates, tt.input)
+			setWireOn16x2(andGates, tt.inputA, tt.inputB)
 			andGates.Update()
 
-			if !reflect.DeepEqual(getOutputs(andGates), tt.want) {
+			if !reflect.DeepEqual(getComponentOutput(andGates), tt.expect) {
 				t.Errorf("ANDGates-%s", tt.name)
 			}
 		})
 	}
-}
-
-func initInputs(c Component, value []bool) {
-	for i := 0; i < len(value); i++ {
-		c.SetInputWire(i, value[i])
-	}
-}
-
-func getOutputs(c Component) []bool {
-	res := []bool{}
-	for i := 0; i < BUS_WIDTH; i++ {
-		res = append(res, c.GetOutputWire(i))
-	}
-	return res
 }

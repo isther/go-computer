@@ -10,7 +10,7 @@ func TestWord(t *testing.T) {
 		name  string
 		input uint16
 		set   bool
-		want  uint16
+		expect  uint16
 	}{
 		{"1", 0x0000, true, 0x0000},
 		{"2", 0x00FF, true, 0x00FF},
@@ -22,7 +22,7 @@ func TestWord(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tempComponent := new(TempComponent)
-			setInputByUint16(tempComponent, tt.input)
+			setWireOn16(tempComponent, tt.input)
 
 			word := NewWord()
 			tempComponent.ConnectOutput(word)
@@ -31,8 +31,8 @@ func TestWord(t *testing.T) {
 
 			t.Log(word.inputs[0], tt.set, word.bits[0].Value(), word.outputs[0])
 
-			if !reflect.DeepEqual(word.Value(), tt.want) {
-				t.Errorf("Word-%s result: %v want: %v", tt.name, word.Value(), tt.want)
+			if !reflect.DeepEqual(word.Value(), tt.expect) {
+				t.Errorf("Word-%s result: %v expect: %v", tt.name, word.Value(), tt.expect)
 			}
 		})
 	}
@@ -43,7 +43,7 @@ func TestBit(t *testing.T) {
 		name       string
 		init       bool
 		input, set bool
-		want       bool
+		expect       bool
 	}{
 		{"1", false, true, true, true},
 		{"2", false, false, true, false},
@@ -59,8 +59,8 @@ func TestBit(t *testing.T) {
 			bit := NewBit()
 			bit.Update(tt.init, true)
 			bit.Update(tt.input, tt.set)
-			if !reflect.DeepEqual(bit.Value(), tt.want) {
-				t.Errorf("Bit-%s s: %v e: %v result: %v want: %v", tt.name, tt.input, tt.set, bit.Value(), tt.want)
+			if !reflect.DeepEqual(bit.Value(), tt.expect) {
+				t.Errorf("Bit-%s s: %v e: %v result: %v expect: %v", tt.name, tt.input, tt.set, bit.Value(), tt.expect)
 			}
 		})
 	}

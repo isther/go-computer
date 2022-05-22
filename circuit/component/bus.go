@@ -4,7 +4,6 @@ import (
 	"github.com/isther/go-computer/circuit"
 )
 
-const BUS_WIDTH = 16
 
 type Bus struct {
 	wires []circuit.Wire

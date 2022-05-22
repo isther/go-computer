@@ -1,16 +1,126 @@
 package alu
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
 	"github.com/isther/go-computer/circuit/component"
 )
 
+var inputBusA *component.Bus = component.NewBus(component.BUS_WIDTH)
+var inputBusB *component.Bus = component.NewBus(component.BUS_WIDTH)
+var outputBus *component.Bus = component.NewBus(component.BUS_WIDTH)
+
+func TestAluNOT(t *testing.T) {
+	tests := []struct {
+		name      string
+		inputA    uint16
+		wantValue uint16
+	}{
+		{"1", 0x0000, 0xFFFF},
+		{"2", 0xFFFF, 0x0000},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			inputBusA.SetValue(tt.inputA)
+			alu := NewALU(inputBusA, inputBusB, outputBus)
+			setOp(alu, NOT)
+
+			alu.Update()
+
+			if !reflect.DeepEqual(outputBus.Value(), tt.wantValue) {
+				t.Errorf("AluADD-%s result: %v expect: %v", tt.name, outputBus.Value(), tt.wantValue)
+			}
+		})
+	}
+}
+
+func TestAluAND(t *testing.T) {
+	tests := []struct {
+		name      string
+		inputA    uint16
+		inputB    uint16
+		wantValue uint16
+	}{
+		{"1", 0x0000, 0x0000, 0x0000},
+		{"2", 0x0000, 0xFF00, 0x0000},
+		{"3", 0x00FF, 0x0000, 0x0000},
+		{"4", 0xFFFF, 0xFFFF, 0xFFFF},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			inputBusA.SetValue(tt.inputA)
+			inputBusB.SetValue(tt.inputB)
+			alu := NewALU(inputBusA, inputBusB, outputBus)
+			setOp(alu, AND)
+
+			alu.Update()
+
+			if !reflect.DeepEqual(outputBus.Value(), tt.wantValue) {
+				t.Errorf("AluADD-%s result: %v expect: %v", tt.name, outputBus.Value(), tt.wantValue)
+			}
+		})
+	}
+}
+
+func TestAluOR(t *testing.T) {
+	tests := []struct {
+		name      string
+		inputA    uint16
+		inputB    uint16
+		wantValue uint16
+	}{
+		{"1", 0x0000, 0x0000, 0x0000},
+		{"2", 0x0000, 0xFF00, 0xFF00},
+		{"3", 0x00FF, 0x0000, 0x00FF},
+		{"4", 0xFFFF, 0xFFFF, 0xFFFF},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			inputBusA.SetValue(tt.inputA)
+			inputBusB.SetValue(tt.inputB)
+			alu := NewALU(inputBusA, inputBusB, outputBus)
+			setOp(alu, OR)
+
+			alu.Update()
+
+			if !reflect.DeepEqual(outputBus.Value(), tt.wantValue) {
+				t.Errorf("AluADD-%s result: %v expect: %v", tt.name, outputBus.Value(), tt.wantValue)
+			}
+		})
+	}
+}
+
+func TestAluXOR(t *testing.T) {
+	tests := []struct {
+		name      string
+		inputA    uint16
+		inputB    uint16
+		wantValue uint16
+	}{
+		{"1", 0x0000, 0x0000, 0x0000},
+		{"2", 0x0000, 0xFF00, 0xFF00},
+		{"3", 0x00FF, 0x0000, 0x00FF},
+		{"4", 0xFFFF, 0xFFFF, 0x0000},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			inputBusA.SetValue(tt.inputA)
+			inputBusB.SetValue(tt.inputB)
+			alu := NewALU(inputBusA, inputBusB, outputBus)
+			setOp(alu, XOR)
+
+			alu.Update()
+
+			if !reflect.DeepEqual(outputBus.Value(), tt.wantValue) {
+				t.Errorf("AluADD-%s result: %v expect: %v", tt.name, outputBus.Value(), tt.wantValue)
+			}
+		})
+	}
+}
+
 func TestAluAdd(t *testing.T) {
-	var inputBusA *component.Bus = component.NewBus(component.BUS_WIDTH)
-	var inputBusB *component.Bus = component.NewBus(component.BUS_WIDTH)
-	var outputBus *component.Bus = component.NewBus(component.BUS_WIDTH)
 	tests := []struct {
 		name      string
 		inputA    uint16
@@ -35,22 +145,27 @@ func TestAluAdd(t *testing.T) {
 			inputBusA.SetValue(tt.inputA)
 			inputBusB.SetValue(tt.inputB)
 			alu := NewALU(inputBusA, inputBusB, outputBus)
-			setOp(alu, 0)
+			setOp(alu, ADD)
 
 			alu.CarryIn.Update(tt.carryIn)
 			alu.Update()
 
-			output := getValueOfBus(alu.outputBus)
-
-			if !reflect.DeepEqual(output, tt.wantSum) {
-				t.Errorf("AluADD-%s result: %v want: %v", tt.name, output, tt.wantSum)
+			if !reflect.DeepEqual(outputBus.Value(), tt.wantSum) {
+				t.Errorf("AluADD-%s result: %v expect: %v", tt.name, outputBus.Value(), tt.wantSum)
 			}
 		})
 	}
 }
-func setOp(a *ALU, value uint16) {
-	value = value & 0x10
-	for i := 2; i >= 0; i-- {
+
+func TestOP(t *testing.T) {
+	alu := NewALU(inputBusA, inputBusA, outputBus)
+	setOp(alu, ADD)
+	fmt.Println(alu.Op)
+}
+
+func setOp(a *ALU, value int) {
+	value = value & 0xF
+	for i := 3; i >= 0; i-- {
 		r := (value & (1 << byte(i)))
 		if r != 0 {
 			a.Op[i].Update(true)

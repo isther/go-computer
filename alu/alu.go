@@ -1,20 +1,22 @@
 package alu
 
 import (
+	"fmt"
+
 	"github.com/isther/go-computer/circuit"
 	"github.com/isther/go-computer/circuit/component"
 )
 
 const (
-	ADD = iota
+	NOT = iota
+	AND
+	OR
+	XOR
+
+	ADD
 	SUB
 	MUL
 	DIV
-
-	NOT
-	OR
-	AND
-	XOR
 
 	CMP
 )
@@ -27,7 +29,7 @@ type ALU struct {
 	CarryIn circuit.Wire
 
 	Op        [4]circuit.Wire
-	opDecoder component.Decoder
+	opDecoder component.Decoder4x16
 
 	xor   component.XORGates
 	or    component.ORGates
@@ -44,7 +46,7 @@ func NewALU(inputBusA, inputBusB, outputBus *component.Bus) *ALU {
 	alu.inputBusB = inputBusB
 	alu.outputBus = outputBus
 
-	alu.opDecoder = *component.NewDecoder()
+	alu.opDecoder = *component.NewDecoder4x16()
 
 	alu.xor = *component.NewXORGates()
 	alu.or = *component.NewORGates()
@@ -62,19 +64,30 @@ func NewALU(inputBusA, inputBusB, outputBus *component.Bus) *ALU {
 func (alu *ALU) Update() {
 	alu.updateOpDecoder()
 	enabler := alu.opDecoder.Index()
-
+	fmt.Println(alu.Op)
+	fmt.Println("Update... enabler: ", enabler)
 	switch enabler {
+	case NOT:
+		alu.updateNotter()
+	case AND:
+		alu.updateAnder()
+	case OR:
+		alu.updateOrer()
+	case XOR:
+		alu.updateXorer()
 	case ADD:
 		alu.updateAdder()
+	// case SUB:
+	// case MUL:
+	// case DIV:
+	// case CMP:
+	default:
+		fmt.Println("ERROR")
 	}
 
 	for i := 0; i < component.BUS_WIDTH; i++ {
 		alu.outputBus.SetInputWire(i, alu.enablers[enabler].GetOutputWire(i))
 	}
-}
-
-func (alu *ALU) updateOpDecoder() {
-	alu.opDecoder.Update(alu.Op[2].Value(), alu.Op[2].Value(), alu.Op[1].Value(), alu.Op[0].Value())
 }
 
 func (alu *ALU) setWireOnComponent(c component.Component) {
@@ -83,15 +96,8 @@ func (alu *ALU) setWireOnComponent(c component.Component) {
 	}
 
 	for i := (component.BUS_WIDTH * 2) - 1; i >= component.BUS_WIDTH; i-- {
-		c.SetInputWire(i, alu.inputBusB.GetOutputWire(i-16))
+		c.SetInputWire(i, alu.inputBusB.GetOutputWire(i-component.BUS_WIDTH))
 	}
-}
-
-func (alu *ALU) updateAdder() {
-	alu.setWireOnComponent(&alu.adder)
-	alu.adder.SetCarryIn(alu.CarryIn.Value())
-	alu.adder.Update()
-	alu.wireToEnabler(&alu.adder, 0)
 }
 
 func (a *ALU) wireToEnabler(b component.Component, enablerIndex int) {

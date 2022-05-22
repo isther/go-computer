@@ -1,93 +1,66 @@
 package memory
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/isther/go-computer/circuit/component"
 )
 
-func TestMemory64KWrite(t *testing.T) {
-	bus := component.NewBus(component.BUS_WIDTH)
-	m := NewMemory64K(bus)
-
-	var i uint16
-	var q uint16 = 0xFFFF
-	for i = 0x0000; i < 0xFFFF; i++ {
-		m.AddressRegister.Set()
-		bus.SetValue(i)
-		m.Update()
-
-		m.AddressRegister.Unset()
-		m.Update()
-
-		bus.SetValue(q)
-		m.Set()
-		m.Update()
-
-		m.Unset()
-		m.Update()
-
-		q--
+func TestMemory(t *testing.T) {
+	tests := []struct {
+		name   string
+		pos    uint16
+		input  uint16
+		enable bool
+		want   uint16
+	}{
+		{"1", 0x0000, 0x00FF, true, 0x00FF},
+		{"2", 0xFFFF, 0x0000, true, 0x0000},
+		{"3", 0x0000, 0x00FF, false, 0x0000},
+		{"4", 0xFFFF, 0x0000, false, 0xFFFF},
 	}
 
-	var expected uint16 = 0xFFFF
-	for i = 0x0000; i < 0xFFFF; i++ {
-		m.AddressRegister.Set()
-		bus.SetValue(i)
-		m.Update()
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			bus := component.NewBus(component.BUS_WIDTH)
+			m := NewMemory64K(bus)
 
-		m.AddressRegister.Unset()
-		m.Update()
+			// stored in memory
+			bus.SetValue(tt.pos)
+			m.AddressRegister.Set()
+			m.Update()
 
-		m.Enable()
-		m.Update()
+			m.AddressRegister.Unset()
+			m.Update()
 
-		m.Disable()
-		m.Update()
+			bus.SetValue(tt.input)
+			m.Set()
+			m.Update()
 
-		checkBus(bus, expected)
-		expected--
-	}
-}
+			m.Unset()
+			m.Update()
 
-func TestMemory64KDoesNotUpdateWhenSetFlagIsOff(t *testing.T) {
-	bus := component.NewBus(component.BUS_WIDTH)
-	m := NewMemory64K(bus)
+			// fetch from memory
+			m.AddressRegister.Set()
+			bus.SetValue(tt.pos)
+			m.Update()
 
-	var i uint16
-	var q uint16 = 0xFFFF
-	for i = 0x0000; i < 0xFFFF; i++ {
-		m.AddressRegister.Set()
-		bus.SetValue(i)
-		m.Update()
+			m.AddressRegister.Unset()
+			m.Update()
 
-		m.AddressRegister.Unset()
-		m.Update()
+			if tt.enable {
+				m.Enable()
+				m.Update()
+			}
 
-		bus.SetValue(q)
+			m.Disable()
+			m.Update()
 
-		m.Unset()
-		m.Update()
-
-		q--
-	}
-
-	var expected uint16 = 0xFFFF
-	for i = 0x0000; i < 0xFFFF; i++ {
-		m.AddressRegister.Set()
-		bus.SetValue(i)
-		m.Update()
-
-		m.AddressRegister.Unset()
-		m.Update()
-
-		m.Enable()
-		m.Update()
-
-		m.Disable()
-		m.Update()
-
-		checkBus(bus, expected)
+			if !reflect.DeepEqual(bus.Value(), tt.want) {
+				t.Errorf("Memory-%s", tt.name)
+			}
+		})
 	}
 }
 
@@ -105,36 +78,15 @@ func TestCell(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			inputBus := component.NewBus(component.BUS_WIDTH)
 			outputBus := component.NewBus(component.BUS_WIDTH)
-			setBus(inputBus, tt.input)
+			inputBus.SetValue(tt.input)
+
 			cell := NewCell(inputBus, outputBus)
 			cell.Update(tt.set, tt.enable)
-			if !checkBus(outputBus, tt.input) {
+
+			if !reflect.DeepEqual(outputBus.Value(), tt.input) {
 				t.Errorf("Cell-%s ", tt.name)
 			}
 		})
 	}
 
-}
-
-func setBus(b *component.Bus, value uint16) {
-	for i := component.BUS_WIDTH - 1; i >= 0; i-- {
-		r := (value & (1 << uint16(i)))
-		if r != 0 {
-			b.SetInputWire(i, true)
-		} else {
-			b.SetInputWire(i, false)
-		}
-	}
-}
-
-func checkBus(b *component.Bus, expected uint16) bool {
-	var result uint16
-	for i := component.BUS_WIDTH - 1; i >= 0; i-- {
-		if b.GetOutputWire(i) {
-			result = result | (1 << uint16(i))
-		} else {
-			result = result & ^(1 << uint16(i))
-		}
-	}
-	return result == expected
 }

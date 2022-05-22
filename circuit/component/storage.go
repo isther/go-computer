@@ -14,6 +14,8 @@ type Word struct {
 
 func NewWord() *Word {
 	word := new(Word)
+
+	// initialize all bit to false
 	for i, _ := range word.bits {
 		word.bits[i].Update(false, true)
 	}

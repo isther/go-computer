@@ -74,21 +74,7 @@ func (r *Register) Update() {
 }
 
 func (r *Register) Value() uint16 {
-	var (
-		value uint16
-		x     uint16
-	)
-	// for i := 0; i <= BUS_WIDTH-1; i++ {
-	for i := BUS_WIDTH - 1; i >= 0; i-- {
-		if r.word.GetOutputWire(i) {
-			value = value | (1 << x)
-		} else {
-			value = value &^ (1 << x)
-		}
-		x++
-	}
-
-	return value
+	return r.word.Value()
 }
 
 func (r *Register) String() string {

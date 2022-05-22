@@ -1,186 +1,54 @@
 package component
 
 import (
+	"reflect"
 	"testing"
 )
 
-func TestRegisterWordIsSet(t *testing.T) {
-	b := NewBus(BUS_WIDTH)
-	setBus(b, 0x3957)
-
-	r := NewRegister("r", b, b)
-
-	r.Set()
-	r.Disable()
-	r.Update()
-
-	if !checkValueIs(r.word, 0x3957) {
-		t.Fail()
+func TestRegister(t *testing.T) {
+	tests := []struct {
+		name        string
+		input       uint16
+		set         bool
+		enable      bool
+		wantStorage uint16
+		wantOutput  uint16
+	}{
+		{"set-and-enable-1", 0x0000, true, true, 0x0000, 0x0000},
+		{"set-and-enable-2", 0x00FF, true, true, 0x00FF, 0x00FF},
+		{"only-set-1", 0x0000, true, false, 0x0000, 0x0000},
+		{"only-set-2", 0x00FF, true, false, 0x00FF, 0x0000},
+		{"only-enable-1", 0x0000, false, true, 0x0000, 0x0000},
+		{"only-enable-2", 0x00FF, false, true, 0x0000, 0x0000},
+		{"no-set-and-enable-1", 0x0000, false, false, 0x0000, 0x0000},
+		{"no-set-and-enable-2", 0x00FF, false, false, 0x0000, 0x0000},
 	}
 
-	r.Unset()
-	setBus(b, 0xFE21)
-	r.Update()
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			i := NewBus(BUS_WIDTH)
+			o := NewBus(BUS_WIDTH)
+			// setBus(i, tt.input)
+			i.SetValue(tt.input)
+			r := NewRegister("r", i, o)
+			if tt.set {
+				r.Set()
+			}
+			r.Disable()
+			r.Update()
 
-	// value should not change
-	if !checkValueIs(r.word, 0x3957) {
-		t.Fail()
+			if !reflect.DeepEqual(r.Value(), tt.wantStorage) {
+				t.Errorf("Register-%s: result: %v want: %v", tt.name, r.Value(), tt.wantStorage)
+			}
+
+			if tt.enable {
+				r.Enable()
+			}
+			r.Update()
+			if !reflect.DeepEqual(r.outputBus.Value(), tt.wantOutput) {
+				t.Errorf("Register-%s: result: %v want: %v", tt.name, r.outputBus.Value(), tt.wantOutput)
+				t.Log(r.enabler.outputs)
+			}
+		})
 	}
-
-	r.Set()
-	setBus(b, 0x0039)
-	r.Update()
-
-	// value should change
-	if !checkValueIs(r.word, 0x0039) {
-		t.Fail()
-	}
-}
-
-func TestRegisterOutputIsZeroWhenDisabled(t *testing.T) {
-	b := NewBus(BUS_WIDTH)
-	setBus(b, 0xABF1)
-
-	r := NewRegister("r", b, b)
-
-	r.Set()
-	r.Disable()
-	r.Update()
-
-	//set bus to new value
-	setBus(b, 0x0021)
-
-	if !checkBus(b, 0x0021) {
-		t.Fail()
-	}
-
-	if !checkRegisterOutput(r, 0x0000) {
-		t.Fail()
-	}
-}
-
-func TestRegisterOutputIsWordValueWhenEnable(t *testing.T) {
-	b := NewBus(BUS_WIDTH)
-	setBus(b, 0x54F1)
-
-	r := NewRegister("r", b, b)
-
-	r.Set()
-	r.Enable()
-	r.Update()
-
-	if !checkBus(b, 0x54F1) {
-		t.Fail()
-	}
-}
-
-func TestBusIsUpdatedOnRegisterEnable(t *testing.T) {
-	b := NewBus(BUS_WIDTH)
-	r := NewRegister("r", b, b)
-	setBus(b, 0x32F1)
-
-	r.Disable()
-	r.Set()
-
-	r.Update()
-	r.Unset()
-	setBus(b, 0x9028)
-	r.Enable()
-	r.Update()
-
-	if !checkBus(b, 0x32F1) {
-		t.Fail()
-	}
-}
-
-func TestOutputBusIsUsedWhenDifferentFromInputBus(t *testing.T) {
-	inputBus := NewBus(BUS_WIDTH)
-	outputBus := NewBus(BUS_WIDTH)
-	r := NewRegister("r", inputBus, outputBus)
-	setBus(inputBus, 0x00F1)
-	setBus(outputBus, 0x0093)
-
-	r.Disable()
-	r.Set()
-
-	r.Update()
-	r.Unset()
-	setBus(inputBus, 0x0028)
-	r.Enable()
-	r.Update()
-
-	if !checkBus(inputBus, 0x0028) {
-		t.Fail()
-	}
-
-	// output bus should contain the register value
-	if !checkBus(outputBus, 0x00F1) {
-		t.Fail()
-	}
-}
-
-func TestBusIsNOTUpdatedOnRegisterDisabled(t *testing.T) {
-	b := NewBus(BUS_WIDTH)
-	r := NewRegister("r", b, b)
-	setBus(b, 0x00F1)
-
-	r.Set()
-	r.Disable()
-	r.Update()
-
-	r.Unset()
-	setBus(b, 0x0033)
-	r.Disable()
-	r.Update()
-
-	if !checkBus(b, 0x0033) {
-		t.Fail()
-	}
-}
-
-func checkValueIs(b Component, expected uint16) bool {
-	var result uint16
-	for i := BUS_WIDTH - 1; i >= 0; i-- {
-		if b.GetOutputWire(i) {
-			result = result | (1 << uint16(i))
-		} else {
-			result = result & ^(1 << uint16(i))
-		}
-	}
-	return result == expected
-}
-
-func checkRegisterOutput(r *Register, expected uint16) bool {
-	var result uint16
-	for i := BUS_WIDTH - 1; i >= 0; i-- {
-		if r.outputs[i].Value() {
-			result = result | (1 << uint16(i))
-		} else {
-			result = result & ^(1 << uint16(i))
-		}
-	}
-	return result == expected
-}
-
-func setBus(b *Bus, value uint16) {
-	for i := BUS_WIDTH - 1; i >= 0; i-- {
-		r := (value & (1 << uint16(i)))
-		if r != 0 {
-			b.SetInputWire(i, true)
-		} else {
-			b.SetInputWire(i, false)
-		}
-	}
-}
-
-func checkBus(b *Bus, expected uint16) bool {
-	var result uint16
-	for i := BUS_WIDTH - 1; i >= 0; i-- {
-		if b.GetOutputWire(i) {
-			result = result | (1 << uint16(i))
-		} else {
-			result = result & ^(1 << uint16(i))
-		}
-	}
-	return result == expected
 }

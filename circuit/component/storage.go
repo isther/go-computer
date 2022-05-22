@@ -14,6 +14,9 @@ type Word struct {
 
 func NewWord() *Word {
 	word := new(Word)
+	for i, _ := range word.bits {
+		word.bits[i].Update(false, true)
+	}
 	return word
 }
 
@@ -87,7 +90,7 @@ func (m *Bit) Update(wireI bool, wireS bool) {
 		m.nandGates[0].Update(wireI, wireS)
 		m.nandGates[1].Update(m.nandGates[0].Value(), wireS)
 		m.nandGates[2].Update(m.nandGates[0].Value(), m.nandGates[3].Value())
-		m.nandGates[3].Update(m.nandGates[1].Value(), m.nandGates[2].Value())
+		m.nandGates[3].Update(m.nandGates[2].Value(), m.nandGates[1].Value())
+		m.q.Update(m.nandGates[2].Value())
 	}
-	m.q.Update(m.nandGates[2].Value())
 }

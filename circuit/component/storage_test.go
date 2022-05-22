@@ -8,27 +8,30 @@ import (
 func TestWord(t *testing.T) {
 	tests := []struct {
 		name  string
-		value uint16
-		s     bool
+		input uint16
+		set   bool
 		want  uint16
 	}{
 		{"1", 0x0000, true, 0x0000},
 		{"2", 0x00FF, true, 0x00FF},
 		{"3", 0xFFFF, true, 0xFFFF},
-		{"4", 0xFFFF, false, 0x0000},
+		{"4", 0x0000, false, 0x0000},
+		{"5", 0x00FF, false, 0x0000},
+		{"6", 0xFFFF, false, 0x0000},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tempComponent := new(TempComponent)
-			setInputByUint16(tempComponent, tt.value)
+			setInputByUint16(tempComponent, tt.input)
 
 			word := NewWord()
 			tempComponent.ConnectOutput(word)
 			tempComponent.Update()
-			word.Update(tt.s)
+			word.Update(tt.set)
+
+			t.Log(word.inputs[0], tt.set, word.bits[0].Value(), word.outputs[0])
 
 			if !reflect.DeepEqual(word.Value(), tt.want) {
-				t.Log(word.outputs)
 				t.Errorf("Word-%s result: %v want: %v", tt.name, word.Value(), tt.want)
 			}
 		})
@@ -37,19 +40,27 @@ func TestWord(t *testing.T) {
 
 func TestBit(t *testing.T) {
 	tests := []struct {
-		name string
-		s, e bool
-		want bool
+		name       string
+		init       bool
+		input, set bool
+		want       bool
 	}{
-		{"1", true, true, true},
-		{"2", false, true, false},
+		{"1", false, true, true, true},
+		{"2", false, false, true, false},
+		{"3", false, true, false, false},
+		{"4", false, false, false, false},
+		{"5", true, true, true, true},
+		{"6", true, false, true, false},
+		{"7", true, true, false, true},
+		{"8", true, false, false, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			bit := NewBit()
-			bit.Update(tt.s, tt.e)
+			bit.Update(tt.init, true)
+			bit.Update(tt.input, tt.set)
 			if !reflect.DeepEqual(bit.Value(), tt.want) {
-				t.Errorf("Bit-%s s: %v e: %v result: %v want: %v", tt.name, tt.s, tt.e, bit.Value(), tt.want)
+				t.Errorf("Bit-%s s: %v e: %v result: %v want: %v", tt.name, tt.input, tt.set, bit.Value(), tt.want)
 			}
 		})
 	}

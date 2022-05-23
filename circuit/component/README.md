@@ -55,6 +55,11 @@
 ![](../../image/16_bit_or_gate.png)
 ![](../../image/16_bit_xor_gate.png)
 
+## Shifter
+
+![](../../image/shl.png)
+![](../../image/shr.png)
+
 ## Mem
 
 ### 1-bit
@@ -76,3 +81,13 @@
 ## Register
 
 ![](../../image/register.png)
+
+## Compare
+
+### 1-bit
+
+![](../../image/compare.png)
+
+### 16-bit
+
+![](../../image/comparator.png)

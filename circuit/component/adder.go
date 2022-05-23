@@ -16,6 +16,8 @@ type Adder16Bit struct {
 
 	output   [16]circuit.Wire
 	carryOut circuit.Wire
+
+	next Component
 }
 
 func NewAdder16Bit() *Adder16Bit {
@@ -31,6 +33,10 @@ func NewAdder16Bit() *Adder16Bit {
 func (adder16Bit *Adder16Bit) SetCarryIn(carryIn bool) *Adder16Bit {
 	adder16Bit.carryIn.Update(carryIn)
 	return adder16Bit
+}
+
+func (adder16Bit *Adder16Bit) ConnectOutput(c Component) {
+	adder16Bit.next = c
 }
 
 func (adder16Bit *Adder16Bit) SetInputWire(index int, value bool) {

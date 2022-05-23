@@ -9,6 +9,7 @@ type XORGates struct {
 	inputs  [BUS_WIDTH * 2]circuit.Wire
 	gates   [BUS_WIDTH]gate.XORGate
 	outputs [BUS_WIDTH]circuit.Wire
+	next    Component
 }
 
 func NewXORGates() *XORGates {
@@ -19,6 +20,10 @@ func NewXORGates() *XORGates {
 	}
 
 	return a
+}
+
+func (a *XORGates) ConnectOutput(c Component) {
+	a.next = c
 }
 
 func (a *XORGates) GetOutputWire(index int) bool {
@@ -44,6 +49,7 @@ type NOTGates struct {
 	inputs  [BUS_WIDTH]circuit.Wire
 	gates   [BUS_WIDTH]gate.NOTGate
 	outputs [BUS_WIDTH]circuit.Wire
+	next    Component
 }
 
 func NewNOTGates() *NOTGates {
@@ -54,6 +60,10 @@ func NewNOTGates() *NOTGates {
 	}
 
 	return a
+}
+
+func (a *NOTGates) ConnectOutput(c Component) {
+	a.next = c
 }
 
 func (a *NOTGates) GetOutputWire(index int) bool {
@@ -77,6 +87,8 @@ type ORGates struct {
 	Inputs  [BUS_WIDTH * 2]circuit.Wire
 	gates   [BUS_WIDTH]gate.ORGate
 	outputs [BUS_WIDTH]circuit.Wire
+
+	next Component
 }
 
 func NewORGates() *ORGates {
@@ -87,6 +99,10 @@ func NewORGates() *ORGates {
 	}
 
 	return a
+}
+
+func (a *ORGates) ConnectOutput(c Component) {
+	a.next = c
 }
 
 func (a *ORGates) GetOutputWire(index int) bool {
@@ -112,6 +128,8 @@ type ANDGates struct {
 	inputs  [BUS_WIDTH * 2]circuit.Wire
 	gates   [BUS_WIDTH]gate.ANDGate
 	outputs [BUS_WIDTH]circuit.Wire
+
+	next Component
 }
 
 func NewANDGates() *ANDGates {
@@ -122,6 +140,10 @@ func NewANDGates() *ANDGates {
 	}
 
 	return a
+}
+
+func (a *ANDGates) ConnectOutput(c Component) {
+	a.next = c
 }
 
 func (a *ANDGates) GetOutputWire(index int) bool {

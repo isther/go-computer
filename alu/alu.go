@@ -5,6 +5,7 @@ import (
 
 	"github.com/isther/go-computer/circuit"
 	"github.com/isther/go-computer/circuit/component"
+	"github.com/isther/go-computer/circuit/gate"
 )
 
 const (
@@ -12,13 +13,14 @@ const (
 	AND
 	OR
 	XOR
+	SHL
+	SHR
+	CMP
 
 	ADD
 	SUB
 	MUL
 	DIV
-
-	CMP
 )
 
 type ALU struct {
@@ -26,18 +28,25 @@ type ALU struct {
 	inputBusB *component.Bus
 	outputBus *component.Bus
 
-	CarryIn circuit.Wire
+	carryIn  circuit.Wire
+	carryOut circuit.Wire
+	isLarger circuit.Wire
+	isEqual  circuit.Wire
 
 	Op        [4]circuit.Wire
 	opDecoder component.Decoder4x16
 
-	xor   component.XORGates
-	or    component.ORGates
-	and   component.ANDGates
-	not   component.NOTGates
-	adder component.Adder16Bit
+	xor         component.XORGates
+	or          component.ORGates
+	and         component.ANDGates
+	not         component.NOTGates
+	leftShifer  component.LeftShifter
+	rightShifer component.RightShifter
+	comparator  component.Comparator
+	adder       component.Adder16Bit
 
 	enablers [16]component.Enabler
+	andGates [3]gate.ANDGate
 }
 
 func NewALU(inputBusA, inputBusB, outputBus *component.Bus) *ALU {
@@ -52,11 +61,18 @@ func NewALU(inputBusA, inputBusB, outputBus *component.Bus) *ALU {
 	alu.or = *component.NewORGates()
 	alu.and = *component.NewANDGates()
 	alu.not = *component.NewNOTGates()
+	alu.leftShifer = *component.NewLeftShifter()
+	alu.rightShifer = *component.NewRightShifter()
+	alu.comparator = *component.NewComparator()
 	alu.adder = *component.NewAdder16Bit()
 
 	for i := range alu.enablers {
 		alu.enablers[i] = *component.NewEnabler()
 	}
+
+	alu.andGates[0] = *gate.NewANDGate()
+	alu.andGates[1] = *gate.NewANDGate()
+	alu.andGates[2] = *gate.NewANDGate()
 
 	return alu
 }
@@ -64,8 +80,6 @@ func NewALU(inputBusA, inputBusB, outputBus *component.Bus) *ALU {
 func (alu *ALU) Update() {
 	alu.updateOpDecoder()
 	enabler := alu.opDecoder.Index()
-	fmt.Println(alu.Op)
-	fmt.Println("Update... enabler: ", enabler)
 	switch enabler {
 	case NOT:
 		alu.updateNotter()
@@ -75,18 +89,37 @@ func (alu *ALU) Update() {
 		alu.updateOrer()
 	case XOR:
 		alu.updateXorer()
+	case SHL:
+		alu.updateLeftShifter()
+	case SHR:
+		alu.updateRightShifter()
+	case CMP:
+		alu.updateComparator()
 	case ADD:
 		alu.updateAdder()
 	// case SUB:
 	// case MUL:
 	// case DIV:
-	// case CMP:
 	default:
 		fmt.Println("ERROR")
 	}
 
-	for i := 0; i < component.BUS_WIDTH; i++ {
-		alu.outputBus.SetInputWire(i, alu.enablers[enabler].GetOutputWire(i))
+	if enabler != CMP {
+		switch enabler {
+		case ADD:
+			alu.andGates[0].Update(alu.adder.Carry(), alu.opDecoder.GetOutputWire(ADD))
+			alu.carryOut.Update(alu.andGates[0].Value())
+		case SHR:
+			alu.andGates[1].Update(alu.rightShifer.ShiftOut(), alu.opDecoder.GetOutputWire(SHR))
+			alu.carryOut.Update(alu.andGates[1].Value())
+		case SHL:
+			alu.andGates[2].Update(alu.leftShifer.ShiftOut(), alu.opDecoder.GetOutputWire(SHL))
+			alu.carryOut.Update(alu.andGates[2].Value())
+		}
+
+		for i := 0; i < component.BUS_WIDTH; i++ {
+			alu.outputBus.SetInputWire(i, alu.enablers[enabler].GetOutputWire(i))
+		}
 	}
 }
 

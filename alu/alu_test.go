@@ -30,7 +30,7 @@ func TestAluNOT(t *testing.T) {
 			alu.Update()
 
 			if !reflect.DeepEqual(outputBus.Value(), tt.wantValue) {
-				t.Errorf("AluADD-%s result: %v expect: %v", tt.name, outputBus.Value(), tt.wantValue)
+				t.Errorf("AluNOT-%s result: %v expect: %v", tt.name, outputBus.Value(), tt.wantValue)
 			}
 		})
 	}
@@ -58,7 +58,7 @@ func TestAluAND(t *testing.T) {
 			alu.Update()
 
 			if !reflect.DeepEqual(outputBus.Value(), tt.wantValue) {
-				t.Errorf("AluADD-%s result: %v expect: %v", tt.name, outputBus.Value(), tt.wantValue)
+				t.Errorf("AluAND-%s result: %v expect: %v", tt.name, outputBus.Value(), tt.wantValue)
 			}
 		})
 	}
@@ -86,7 +86,7 @@ func TestAluOR(t *testing.T) {
 			alu.Update()
 
 			if !reflect.DeepEqual(outputBus.Value(), tt.wantValue) {
-				t.Errorf("AluADD-%s result: %v expect: %v", tt.name, outputBus.Value(), tt.wantValue)
+				t.Errorf("AluOR-%s result: %v expect: %v", tt.name, outputBus.Value(), tt.wantValue)
 			}
 		})
 	}
@@ -114,7 +114,102 @@ func TestAluXOR(t *testing.T) {
 			alu.Update()
 
 			if !reflect.DeepEqual(outputBus.Value(), tt.wantValue) {
-				t.Errorf("AluADD-%s result: %v expect: %v", tt.name, outputBus.Value(), tt.wantValue)
+				t.Errorf("AluXOR-%s result: %v expect: %v", tt.name, outputBus.Value(), tt.wantValue)
+			}
+		})
+	}
+}
+
+func TestSHL(t *testing.T) {
+	tests := []struct {
+		name    string
+		input   uint16
+		shiftIn bool
+
+		expectOut      uint16
+		expectShiftOut bool
+	}{
+		{"1", 0x0000, false, 0x0000, false},
+		{"2", 0x8000, false, 0x0000, true},
+		{"3", 0xFFFF, false, 0xFFFE, true},
+		{"4", 0x0000, true, 0x0001, false},
+		{"5", 0x8000, true, 0x0001, true},
+		{"6", 0xFFFF, true, 0xFFFF, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Run(tt.name, func(t *testing.T) {
+				inputBusA.SetValue(tt.input)
+				alu := NewALU(inputBusA, inputBusB, outputBus)
+				setOp(alu, SHL)
+				alu.carryIn.Update(tt.shiftIn)
+				alu.Update()
+
+				if !reflect.DeepEqual(outputBus.Value(), tt.expectOut) || !reflect.DeepEqual(alu.carryOut.Value(), tt.expectShiftOut) {
+					t.Errorf("AluSHL-%s", tt.name)
+				}
+			})
+		})
+	}
+}
+
+func TestSHR(t *testing.T) {
+	tests := []struct {
+		name    string
+		input   uint16
+		shiftIn bool
+
+		expectOut      uint16
+		expectShiftOut bool
+	}{
+		{"1", 0x0000, false, 0x0000, false},
+		{"2", 0x0001, false, 0x0000, true},
+		{"3", 0x8000, false, 0x4000, false},
+		{"4", 0xFFFF, false, 0x7FFF, true},
+		{"5", 0x0000, true, 0x8000, false},
+		{"6", 0x8000, true, 0xC000, false},
+		{"7", 0x4AAA, true, 0xA555, false},
+		{"8", 0xFFFF, true, 0xFFFF, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			inputBusA.SetValue(tt.input)
+			alu := NewALU(inputBusA, inputBusB, outputBus)
+			setOp(alu, SHR)
+			alu.carryIn.Update(tt.shiftIn)
+			alu.Update()
+
+			if !reflect.DeepEqual(outputBus.Value(), tt.expectOut) || !reflect.DeepEqual(alu.carryOut.Value(), tt.expectShiftOut) {
+				t.Errorf("AluSHR-%s", tt.name)
+			}
+		})
+	}
+}
+func TestCMP(t *testing.T) {
+	tests := []struct {
+		name   string
+		inputA uint16
+		inputB uint16
+
+		expectEqualOut  bool
+		expectLargerOut bool
+	}{
+		{"1", 0x0000, 0x0000, true, false},
+		{"2", 0x00FF, 0x0000, false, true},
+		{"3", 0x00FF, 0x00FF, true, false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			inputBusA.SetValue(tt.inputA)
+			inputBusB.SetValue(tt.inputB)
+			alu := NewALU(inputBusA, inputBusB, outputBus)
+			setOp(alu, CMP)
+
+			alu.Update()
+
+			if !reflect.DeepEqual(alu.isEqual.Value(), tt.expectEqualOut) || !reflect.DeepEqual(alu.isLarger.Value(), tt.expectLargerOut) {
+				t.Errorf("AluCMP-%s", tt.name)
 			}
 		})
 	}
@@ -147,7 +242,7 @@ func TestAluAdd(t *testing.T) {
 			alu := NewALU(inputBusA, inputBusB, outputBus)
 			setOp(alu, ADD)
 
-			alu.CarryIn.Update(tt.carryIn)
+			alu.carryIn.Update(tt.carryIn)
 			alu.Update()
 
 			if !reflect.DeepEqual(outputBus.Value(), tt.wantSum) {

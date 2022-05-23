@@ -34,9 +34,33 @@ func (a *ALU) updateXorer() {
 	a.wireToEnabler(&a.xor, XOR)
 }
 
+func (a *ALU) updateLeftShifter() {
+	for i := (component.BUS_WIDTH - 1); i >= 0; i-- {
+		a.leftShifer.SetInputWire(i, a.inputBusA.GetOutputWire(i))
+	}
+	a.leftShifer.Update(a.carryIn.Value())
+	a.wireToEnabler(&a.leftShifer, SHL)
+}
+
+func (a *ALU) updateRightShifter() {
+	for i := (component.BUS_WIDTH - 1); i >= 0; i-- {
+		a.rightShifer.SetInputWire(i, a.inputBusA.GetOutputWire(i))
+	}
+	a.rightShifer.Update(a.carryIn.Value())
+	a.wireToEnabler(&a.rightShifer, SHR)
+}
+
+func (a *ALU) updateComparator() {
+	// comparator is not wired to an enabler and runs all the time
+	a.setWireOnComponent(&a.comparator)
+	a.comparator.Update()
+	a.isLarger.Update(a.comparator.Larger())
+	a.isEqual.Update(a.comparator.Equal())
+}
+
 func (alu *ALU) updateAdder() {
 	alu.setWireOnComponent(&alu.adder)
-	alu.adder.SetCarryIn(alu.CarryIn.Value())
+	alu.adder.SetCarryIn(alu.carryIn.Value())
 	alu.adder.Update()
 	alu.wireToEnabler(&alu.adder, ADD)
 }

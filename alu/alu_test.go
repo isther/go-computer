@@ -234,6 +234,10 @@ func TestAluAdd(t *testing.T) {
 		{"8", 0xFFFE, 0x0001, true, 0x0000, true},
 		{"9", 0xFFFF, 0x0001, false, 0x0000, true},
 		{"10", 0xFFFF, 0x0000, true, 0x0000, true},
+
+		{"11", 0xFFFF, 0xFFFF, true, 0xFFFF, true},
+		{"12", 0x7777, 0x8888, false, 0xFFFF, false},
+		{"13", 0x7777, 0x8888, true, 0x0000, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

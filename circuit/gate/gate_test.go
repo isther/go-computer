@@ -5,6 +5,10 @@ import (
 	"testing"
 )
 
+// @Summary Gate test
+// @Description Test the function of the all gates
+// @Tags Gate
+
 func TestNOTGate(t *testing.T) {
 	tests := []struct {
 		name   string

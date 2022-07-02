@@ -2,6 +2,10 @@ package gate
 
 import "github.com/isther/go-computer/circuit"
 
+// @Summary NOR gate
+// @Description Implement the function of an NOR gate
+// @Tags Gate
+
 type NORGate struct {
 	output circuit.Wire
 }

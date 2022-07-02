@@ -4,6 +4,10 @@ import (
 	"github.com/isther/go-computer/circuit"
 )
 
+// @Summary NAND gate
+// @Description Implement the function of an NAND gate
+// @Tags Gate
+
 type NANDGate struct {
 	output circuit.Wire
 }

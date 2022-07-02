@@ -2,6 +2,10 @@ package gate
 
 import "github.com/isther/go-computer/circuit"
 
+// @Summary NOT gate
+// @Description Implement the function of an NOT gate
+// @Tags Gate
+
 type NOTGate struct {
 	output circuit.Wire
 }

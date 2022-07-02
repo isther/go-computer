@@ -2,6 +2,10 @@ package gate
 
 import "github.com/isther/go-computer/circuit"
 
+// @Summary OR gate
+// @Description Implement the function of an OR gate
+// @Tags Gate
+
 type ORGate struct {
 	output circuit.Wire
 }

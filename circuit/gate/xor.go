@@ -2,6 +2,10 @@ package gate
 
 import "github.com/isther/go-computer/circuit"
 
+// @Summary XOR gate
+// @Description Implement the function of an XOR gate
+// @Tags Gate
+
 type XORGate struct {
 	output circuit.Wire
 }

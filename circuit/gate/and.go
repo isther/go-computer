@@ -2,6 +2,10 @@ package gate
 
 import "github.com/isther/go-computer/circuit"
 
+// @Summary AND gate
+// @Description Implement the function of an AND gate
+// @Tags Gate
+
 type ANDGate struct {
 	output circuit.Wire
 }
